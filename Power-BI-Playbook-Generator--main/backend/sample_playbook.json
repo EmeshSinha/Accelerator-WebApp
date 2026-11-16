@@ -1,0 +1,182 @@
+{
+  "source_systems": {
+    "items": [
+      {"source": "SAP ERP — Sales", "type": "SQL Server", "owner": "IT — ERP team", "history": "3 years", "refresh": "Daily", "connector": "SQL Server database", "gateway": "Yes (on-premises)"},
+      {"source": "Store Master", "type": "SharePoint List", "owner": "Sales Ops", "history": "Current only", "refresh": "Weekly", "connector": "SharePoint Online List", "gateway": "No"},
+      {"source": "Sales Targets", "type": "Excel", "owner": "Finance — FP&A", "history": "2 years", "refresh": "Monthly", "connector": "SharePoint folder / Excel", "gateway": "No"}
+    ],
+    "notes": [
+      "Import mode is recommended for all three sources. They refresh daily or less often, and the total volume (~25M invoice lines) fits comfortably in an Import model with incremental refresh. DirectQuery would add query latency without a business need for near-real-time data.",
+      "The targets workbook should be stored on SharePoint/OneDrive rather than a local drive, so no gateway is needed for it."
+    ]
+  },
+  "tables": {
+    "items": [
+      {"source_table": "dbo.SalesInvoiceLine", "model_name": "Sales", "role": "Fact", "rows": "~25M; +30K/day", "transformations": "Keep last 3 years; rename columns; RangeStart/RangeEnd filter on InvoiceDate for incremental refresh"},
+      {"source_table": "dbo.ProductMaster", "model_name": "Product", "role": "Dimension", "rows": "~8,000", "transformations": "Trim and upper-case SKU"},
+      {"source_table": "StoreMaster", "model_name": "Store", "role": "Dimension", "rows": "120", "transformations": "Keep required columns only; set OpenDate to Date type"},
+      {"source_table": "Targets_FY27.xlsx › Monthly", "model_name": "Sales Target", "role": "Fact", "rows": "~5,000 / year", "transformations": "Set Month to Date; trim Category to match Product[Category]"},
+      {"source_table": "(derived from dbo.ProductMaster)", "model_name": "Category", "role": "Dimension", "rows": "~20", "transformations": "Distinct Category values — needed to relate targets to actuals"}
+    ],
+    "columns": [
+      {"model_table": "Sales", "column": "InvoiceNo", "pbi_type": "Text", "key": "—", "notes": "Invoice number; used for bill count"},
+      {"model_table": "Sales", "column": "InvoiceDate", "pbi_type": "Date", "key": "—", "notes": "Date of sale; incremental-refresh column"},
+      {"model_table": "Sales", "column": "StoreCode", "pbi_type": "Text", "key": "FK → Store", "notes": "Store where sale happened"},
+      {"model_table": "Sales", "column": "SKU", "pbi_type": "Text", "key": "FK → Product", "notes": "Product sold"},
+      {"model_table": "Sales", "column": "Quantity", "pbi_type": "Whole number", "key": "—", "notes": "Negative for returns"},
+      {"model_table": "Sales", "column": "LineAmount", "pbi_type": "Fixed decimal", "key": "—", "notes": "Gross amount before discount (INR)"},
+      {"model_table": "Sales", "column": "DiscountAmount", "pbi_type": "Fixed decimal", "key": "—", "notes": "Discount on the line (INR)"},
+      {"model_table": "Product", "column": "SKU", "pbi_type": "Text", "key": "PK", "notes": "Product code"},
+      {"model_table": "Product", "column": "ProductName", "pbi_type": "Text", "key": "—", "notes": "Product name"},
+      {"model_table": "Product", "column": "Category", "pbi_type": "Text", "key": "FK → Category", "notes": "Product category"},
+      {"model_table": "Product", "column": "SubCategory", "pbi_type": "Text", "key": "—", "notes": "Product sub-category"},
+      {"model_table": "Product", "column": "UnitCost", "pbi_type": "Fixed decimal", "key": "—", "notes": "Cost per unit (INR); used for COGS"},
+      {"model_table": "Store", "column": "StoreCode", "pbi_type": "Text", "key": "PK", "notes": "Store code"},
+      {"model_table": "Store", "column": "StoreName", "pbi_type": "Text", "key": "—", "notes": "Store name"},
+      {"model_table": "Store", "column": "City", "pbi_type": "Text", "key": "—", "notes": "Data category: City"},
+      {"model_table": "Store", "column": "Region", "pbi_type": "Text", "key": "—", "notes": "North / South / East / West; used for RLS"},
+      {"model_table": "Store", "column": "StoreFormat", "pbi_type": "Text", "key": "—", "notes": "Hypermarket / Supermarket / Express"},
+      {"model_table": "Store", "column": "OpenDate", "pbi_type": "Date", "key": "—", "notes": "Used for Like-for-Like eligibility"},
+      {"model_table": "Sales Target", "column": "Month", "pbi_type": "Date", "key": "—", "notes": "First day of target month"},
+      {"model_table": "Sales Target", "column": "StoreCode", "pbi_type": "Text", "key": "FK → Store", "notes": "Store"},
+      {"model_table": "Sales Target", "column": "Category", "pbi_type": "Text", "key": "FK → Category", "notes": "Product category"},
+      {"model_table": "Sales Target", "column": "TargetAmount", "pbi_type": "Fixed decimal", "key": "—", "notes": "Sales target (INR)"}
+    ]
+  },
+  "data_model": {
+    "relationships": [
+      {"from": "Sales[StoreCode]", "to": "Store[StoreCode]", "cardinality": "Many-to-one", "cross_filter": "Single", "basis": "Stated in BRD"},
+      {"from": "Sales[SKU]", "to": "Product[SKU]", "cardinality": "Many-to-one", "cross_filter": "Single", "basis": "Stated in BRD"},
+      {"from": "Sales Target[StoreCode]", "to": "Store[StoreCode]", "cardinality": "Many-to-one", "cross_filter": "Single", "basis": "Stated in BRD"},
+      {"from": "Sales Target[Category]", "to": "Category[Category]", "cardinality": "Many-to-one", "cross_filter": "Single", "basis": "Inferred — matching column name"},
+      {"from": "Product[Category]", "to": "Category[Category]", "cardinality": "Many-to-one", "cross_filter": "Single", "basis": "Inferred — matching column name"}
+    ],
+    "notes": ["Inferred relationships should be confirmed with the client: category names in the targets workbook must exactly match those in the product master."]
+  },
+  "kpis": {
+    "intro": "All measures are kept in a dedicated _Measures table. Base measures are defined first and reused by the KPIs.",
+    "base_measures": "Gross Sales   = SUM ( Sales[LineAmount] )\nDiscount      = SUM ( Sales[DiscountAmount] )\nCOGS          = SUMX ( Sales, Sales[Quantity] * RELATED ( Product[UnitCost] ) )\nInvoice Count = DISTINCTCOUNT ( Sales[InvoiceNo] )\nSales Target  = SUM ( 'Sales Target'[TargetAmount] )",
+    "items": [
+      {"name": "Net Sales", "priority": "Must", "definition": "Revenue after discounts and returns: invoice line amount minus discount, with returns netted off.", "uses": "Sales[LineAmount], Sales[DiscountAmount]", "dax": "Net Sales = [Gross Sales] - [Discount]\n-- Returns are already netted as negative-quantity lines (to be confirmed with ERP team)"},
+      {"name": "Gross Margin %", "priority": "Must", "definition": "Net Sales minus cost of goods sold, as a share of Net Sales.", "uses": "Sales[Quantity], Product[UnitCost], [Net Sales]", "dax": "Gross Margin % = DIVIDE ( [Net Sales] - [COGS], [Net Sales] )\n\nGM % Status =\nSWITCH ( TRUE (),\n    [Gross Margin %] >= 0.22, \"Green\",\n    [Gross Margin %] >= 0.18, \"Amber\",\n    \"Red\" )"},
+      {"name": "Target Achievement %", "priority": "Must", "definition": "Net Sales as a share of the sales target for the same month and store.", "uses": "[Net Sales], 'Sales Target'[TargetAmount]", "dax": "Target Achievement % = DIVIDE ( [Net Sales], [Sales Target] )\n\nTarget Status =\nSWITCH ( TRUE (),\n    [Target Achievement %] >= 1.00, \"Green\",\n    [Target Achievement %] >= 0.90, \"Amber\",\n    \"Red\" )"},
+      {"name": "Average Bill Value", "priority": "Should", "definition": "Average spend per customer invoice.", "uses": "[Net Sales], Sales[InvoiceNo]", "dax": "Average Bill Value = DIVIDE ( [Net Sales], [Invoice Count] )"},
+      {"name": "Like-for-Like Growth %", "priority": "Could", "definition": "Year-on-year Net Sales growth, counting only stores open more than 12 months.", "uses": "[Net Sales], Store[OpenDate], Sales[InvoiceDate]", "dax": "LFL Growth % =\nVAR PeriodEnd = MAX ( Sales[InvoiceDate] )\nVAR LFLStores =\n    FILTER ( VALUES ( Store[StoreCode] ),\n             CALCULATE ( MIN ( Store[OpenDate] ) ) <= EDATE ( PeriodEnd, -12 ) )\nVAR CurrentYear = CALCULATE ( [Net Sales], LFLStores )\nVAR PriorYear   = CALCULATE ( [Net Sales], LFLStores,\n                              DATEADD ( Sales[InvoiceDate], -1, YEAR ) )\nRETURN DIVIDE ( CurrentYear - PriorYear, PriorYear )"}
+    ]
+  },
+  "report_pages": {
+    "intro": "Page-level design for each page in the BRD. Report-level filter on all pages: last 3 years of data.",
+    "pages": [
+      {"name": "Executive Summary", "purpose": "At-a-glance health of the business vs target", "priority": "Must", "personas": "Head of Sales, Regional Manager", "kpis_shown": "Net Sales, Gross Margin %, Target Achievement %, Like-for-Like Growth %", "slicers": "Month, Region", "page_filters": "None", "drill": "Drill-through to Store Performance from Region bar (passes Store[Region])", "interactions": "Region bar cross-filters trend and cards",
+        "visuals": [
+          {"visual": "Net Sales", "type": "Card", "fields": "[Net Sales]"},
+          {"visual": "Gross Margin %", "type": "Card (RAG colour)", "fields": "[Gross Margin %], colour by [GM % Status]"},
+          {"visual": "Target Achievement %", "type": "Card (RAG colour)", "fields": "[Target Achievement %], colour by [Target Status]"},
+          {"visual": "LFL Growth %", "type": "Card", "fields": "[LFL Growth %]"},
+          {"visual": "Sales vs Target trend", "type": "Line & clustered column", "fields": "Axis: Sales[InvoiceDate] (month); Columns: [Net Sales]; Line: [Sales Target]"},
+          {"visual": "Sales by Region", "type": "Clustered bar", "fields": "Axis: Store[Region]; Value: [Net Sales]; Tooltip: [Target Achievement %]"}
+        ]},
+      {"name": "Store Performance", "purpose": "Rank stores and spot under-performers", "priority": "Must", "personas": "Regional Manager, Store Manager", "kpis_shown": "Net Sales, Gross Margin %, Target Achievement %, Average Bill Value", "slicers": "Month, Region, Store Format", "page_filters": "None", "drill": "Drill-down Region › City › Store in matrix; drill-through target from Executive Summary", "interactions": "Map and matrix cross-highlight. Mobile layout: matrix and slicers only",
+        "visuals": [
+          {"visual": "Store ranking", "type": "Matrix", "fields": "Rows: Region › City › StoreName; Values: [Net Sales], [Target Achievement %], [Gross Margin %], [Average Bill Value]; conditional formatting on %"},
+          {"visual": "Sales by City", "type": "Map", "fields": "Location: Store[City]; Size: [Net Sales]; Tooltip: [Target Achievement %]"},
+          {"visual": "Bottom 10 stores", "type": "Bar (Top N filter)", "fields": "Axis: Store[StoreName]; Value: [Target Achievement %]; Bottom 10"}
+        ]},
+      {"name": "Category Analysis", "purpose": "Understand which categories drive sales and margin", "priority": "Should", "personas": "Head of Sales, Regional Manager", "kpis_shown": "Net Sales, Gross Margin %, Target Achievement %", "slicers": "Month, Region", "page_filters": "None", "drill": "Drill-down Category › Sub-category in treemap", "interactions": "Treemap cross-filters scatter and column chart",
+        "visuals": [
+          {"visual": "Sales by Category", "type": "Treemap", "fields": "Category: Category[Category] › Product[SubCategory]; Values: [Net Sales]"},
+          {"visual": "Sales vs Margin", "type": "Scatter", "fields": "Details: Product[SubCategory]; X: [Net Sales]; Y: [Gross Margin %]"},
+          {"visual": "Category vs Target", "type": "Clustered column", "fields": "Axis: Category[Category]; Values: [Net Sales], [Sales Target]"}
+        ]}
+    ]
+  },
+  "key_decisions": [
+    "Sales and Sales Target are related through shared Store and Category tables, so actuals and targets can be compared on the same visual.",
+    "Incremental refresh on the invoice-line table to meet the 8:00 AM refresh window.",
+    "Dynamic row-level security driven by a user-to-region/store mapping table, covering Regional and Store Managers.",
+    "Three report pages delivered as one Power BI app, with a mobile layout for Store Managers."
+  ],
+  "audience": {
+    "source_note": "Personas as provided in the BRD Audience sheet.",
+    "personas": [
+      {"persona": "Head of Sales", "users": "2", "key_decisions": "Set regional targets; reallocate promotion budget", "data_access": "All regions", "primary_pages": "Executive Summary, Category Analysis", "device": "Desktop"},
+      {"persona": "Regional Manager", "users": "4", "key_decisions": "Identify under-performing stores; act on margin leakage", "data_access": "Own region only", "primary_pages": "All three pages", "device": "Desktop & mobile"},
+      {"persona": "Store Manager", "users": "120", "key_decisions": "Track own store vs target and peer stores", "data_access": "Own store only", "primary_pages": "Store Performance", "device": "Mobile"}
+    ],
+    "recommendations": [
+      "Publish one Power BI app with an audience per persona, so Store Managers see only Store Performance.",
+      "Build a mobile layout for Store Performance, since 120 Store Managers will use phones.",
+      "Grant access through Entra ID security groups, not individual users."
+    ]
+  },
+  "security": {
+    "source_note": "Row-level security is based on the two RLS requirements in the BRD Security & NFR sheet.",
+    "security_table_description": "A User Security table maintained by Sales Ops (SharePoint list), loaded into the model and not related to other tables.",
+    "security_table_columns": [
+      {"column": "UserEmail", "example": "anita.rao@freshmart.in", "notes": "Entra ID user principal name"},
+      {"column": "Region", "example": "North", "notes": "Filled for Regional Managers"},
+      {"column": "StoreCode", "example": "ST-042", "notes": "Filled for Store Managers"}
+    ],
+    "roles": [
+      {"role": "All Access", "members": "Head of Sales group", "filter_table": "None", "requirement": "—"},
+      {"role": "Region", "members": "Regional Managers group", "filter_table": "Store", "requirement": "Regional managers see only their region"},
+      {"role": "Store", "members": "Store Managers group", "filter_table": "Store", "requirement": "Store managers see only their store"}
+    ],
+    "rls_dax": "-- Role: Region   (table: Store)\nStore[Region]\n    IN CALCULATETABLE ( VALUES ( 'User Security'[Region] ),\n                        'User Security'[UserEmail] = USERPRINCIPALNAME () )\n\n-- Role: Store    (table: Store)\nStore[StoreCode]\n    IN CALCULATETABLE ( VALUES ( 'User Security'[StoreCode] ),\n                        'User Security'[UserEmail] = USERPRINCIPALNAME () )",
+    "recommendations": [
+      "Filters flow from Store to both Sales and Sales Target, so one filter secures both.",
+      "Test each role with View as in Power BI Desktop and the service before go-live.",
+      "Apply a Confidential sensitivity label and disable export of underlying data for the Store role.",
+      "Object-level security is not required."
+    ]
+  },
+  "refresh": {
+    "schedule": [
+      {"source": "SAP ERP — Sales", "required": "Daily, ready by 8:00 AM IST", "schedule": "Daily 6:30 AM IST", "method": "Incremental refresh via gateway"},
+      {"source": "Store Master", "required": "Weekly", "schedule": "Included in daily dataset refresh", "method": "Full refresh (120 rows)"},
+      {"source": "Sales Targets", "required": "Monthly", "schedule": "Included in daily dataset refresh", "method": "Full refresh"}
+    ],
+    "incremental_title": "Incremental refresh — Sales",
+    "incremental": [
+      {"label": "Archive", "value": "3 years (matches history requirement)"},
+      {"label": "Refresh window", "value": "Last 7 days, to pick up late-posted returns"},
+      {"label": "Partition column", "value": "Sales[InvoiceDate] using RangeStart / RangeEnd parameters"},
+      {"label": "Licence note", "value": "Available in Pro; Premium/Fabric allows more refreshes per day"}
+    ],
+    "practices": [
+      "Target from BRD: each page renders in under 5 seconds.",
+      "Load only the columns listed in the Table & Column Catalogue; remove unused columns from Sales.",
+      "Use integer surrogate keys if text keys cause high memory use.",
+      "Limit each page to around 8 visuals; use bookmarks rather than hidden duplicate pages.",
+      "Validate with Performance Analyzer before UAT."
+    ]
+  },
+  "deployment": {
+    "workspaces": [
+      {"stage": "Development", "workspace": "FM-Sales-DEV", "purpose": "Build and unit testing", "access": "Xebia developers"},
+      {"stage": "Test", "workspace": "FM-Sales-TEST", "purpose": "Client UAT on production-like data", "access": "Developers, business testers"},
+      {"stage": "Production", "workspace": "FM-Sales-PROD", "purpose": "Live app for business users", "access": "Admins; users via app only"}
+    ],
+    "pipeline": "Content is promoted with a Power BI deployment pipeline (Dev → Test → Prod). Data source connections and parameters are set per stage through deployment rules.",
+    "governance": [
+      "Version control: save the report as a Power BI Project (PBIP) in Git, with one branch per sprint.",
+      "Ownership: dataset owner is the Xebia lead during delivery, transferred to the FreshMart BI team at handover.",
+      "Branding: report theme JSON with primary colour #2E7D32 and the FreshMart logo on every page.",
+      "Subscriptions: email subscriptions are configured in Production only."
+    ]
+  },
+  "delivery": {
+    "intro": "Work is split into sprints by priority (Must → Should → Could). Sprint length and the number of sprints depend on team size and are agreed separately, so no durations are given.",
+    "sprints": [
+      {"sprint": "Sprint 0", "goal": "Setup & access", "scope": "Access to all three sources; gateway; Dev/Test/Prod workspaces; User Security list; licensing confirmed", "exit_criteria": "All sources connect from Dev"},
+      {"sprint": "Sprint 1", "goal": "Data foundation", "scope": "All tables in Power Query; relationships; base measures; incremental refresh", "exit_criteria": "Model refreshes; Net Sales reconciles to SAP within 0.5%"},
+      {"sprint": "Sprint 2", "goal": "Must-have pages", "scope": "Net Sales, Gross Margin %, Target Achievement %; Executive Summary and Store Performance pages; RLS roles; mobile layout", "exit_criteria": "Pages reviewed by business; RLS verified per role"},
+      {"sprint": "Sprint 3", "goal": "Should / Could & go-live", "scope": "Average Bill Value, Like-for-Like Growth %; Category Analysis page; theme; subscriptions; Prod deployment and app", "exit_criteria": "Business sign-off; app published to all personas"}
+    ],
+    "dependencies": [
+      "Sprint 1 depends on confirmation of how returns are recorded in SAP and whether current unit cost is acceptable for COGS.",
+      "Sprint 2 RLS depends on Sales Ops populating the User Security list.",
+      "Sprint 3 go-live depends on licensing for Store Managers being in place."
+    ]
+  }
+}

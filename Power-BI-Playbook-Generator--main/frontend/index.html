@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Power BI Playbook Accelerator · Xebia</title>
+  <link rel="icon" href="assets/xebia_logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Home">
+      <img src="assets/xebia_logo.png" alt="Xebia" class="brand-logo">
+      <span class="brand-divider"></span>
+      <span class="brand-name">Power BI Playbook Accelerator</span>
+    </a>
+    <a class="topbar-link" href="assets/Power_BI_BRD_Template_v1.0.xlsx" download>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 19h16"/></svg>
+      BRD template
+    </a>
+  </header>
+
+  <!-- ===== Upload ===== -->
+  <main id="view-upload" class="view">
+    <section class="hero">
+      <h1>Turn a BRD into a Power BI Playbook</h1>
+      <p>Upload a BRD in any format. The playbook covers sources, data model, DAX, report pages, security and a sprint plan; anything the BRD leaves out is filled in and marked as assumed.</p>
+    </section>
+
+    <section class="card upload-card">
+      <label id="dropzone" class="dropzone" for="file-input" tabindex="0">
+        <input id="file-input" type="file" accept=".xlsx,.xlsm,.docx,.pdf,.csv,.txt,.md" hidden>
+        <div class="dz-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+        </div>
+        <div class="dz-title">Drop your BRD here, or <span class="link">browse</span></div>
+        <div class="dz-hint">Excel, Word, PDF, CSV or text · the Xebia BRD template gives the best results</div>
+      </label>
+
+      <div id="file-chip" class="file-chip" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z M14 3v5h5"/></svg>
+        <span id="file-name"></span>
+        <button id="file-clear" class="icon-btn" title="Remove file" aria-label="Remove file">×</button>
+      </div>
+
+      <div id="upload-error" class="alert" hidden></div>
+
+      <button id="btn-generate" class="btn btn-primary btn-block" disabled>Generate playbook</button>
+      <p id="model-note" class="demo-note" hidden></p>
+    </section>
+
+    <section class="how">
+      <div class="how-step"><span>1</span><div><b>Prepare the BRD</b><p>Use the Xebia template for best results, or upload the BRD you already have.</p></div></div>
+      <div class="how-step"><span>2</span><div><b>Generate</b><p>The AI uses everything in the BRD and fills gaps from Power BI and industry knowledge.</p></div></div>
+      <div class="how-step"><span>3</span><div><b>Review &amp; download</b><p>Read the playbook here and download it as a PDF.</p></div></div>
+    </section>
+  </main>
+
+  <!-- ===== Progress ===== -->
+  <main id="view-progress" class="view" hidden>
+    <section class="card progress-card">
+      <div class="spinner-lg" aria-hidden="true"></div>
+      <h2>Generating your playbook</h2>
+      <p class="muted" id="progress-file"></p>
+      <ol id="step-list" class="steps"></ol>
+      <p id="progress-detail" class="progress-detail" hidden></p>
+      <p class="muted small">This usually takes 1–3 minutes. Keep this tab open. <span id="progress-elapsed"></span></p>
+    </section>
+  </main>
+
+  <!-- ===== Validation issues / errors ===== -->
+  <main id="view-issues" class="view" hidden>
+    <section class="card issues-card">
+      <div class="issues-head">
+        <div class="issues-icon">!</div>
+        <div>
+          <h2 id="issues-title">The playbook could not be generated</h2>
+          <p class="muted" id="issues-sub"></p>
+        </div>
+      </div>
+            <div class="actions">
+        <button class="btn btn-primary" data-action="retry">Try again</button>
+        <button class="btn btn-secondary" data-action="restart">Upload a different BRD</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Playbook ===== -->
+  <div id="view-playbook" class="view playbook-layout" hidden>
+    <aside class="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-title">Contents</div>
+        <nav id="toc"></nav>
+      </div>
+    </aside>
+    <main class="playbook" id="playbook"></main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

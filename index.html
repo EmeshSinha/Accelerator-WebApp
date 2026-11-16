@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Xebia Analytics Accelerator Hub</title>
+  <style>
+    :root {
+      --ink: #401638;
+      --accent: #70205f;
+      --accent-hover: #551749;
+      --accent-soft: #f5eaf2;
+      --muted: #62748a;
+      --line: #dce5ed;
+      --bg: #f4f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(ellipse at 80% 0, #f1e3ee, transparent 35%), var(--bg);
+      color: var(--ink);
+      font-family: Segoe UI, Arial, sans-serif;
+    }
+
+    .shell { max-width: 1160px; margin: auto; padding: 28px; }
+    .top, .section { display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 800; }
+    .brand-mark { color: var(--ink); }
+    .brand-xebia { color: var(--accent); }
+    .brand-divider { color: #aab6c3; font-weight: 400; }
+    .brand-product { color: var(--ink); }
+    .local { color: var(--muted); font-size: 12px; }
+    .dot { color: var(--accent); font-size: 18px; margin-right: 6px; }
+    .hero { padding: 70px 0 48px; max-width: 740px; }
+    .eyebrow, .tag { color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: 1.5px; }
+    h1 { font-size: clamp(40px, 6vw, 64px); line-height: 1.04; letter-spacing: -2px; margin: 14px 0; }
+    .hero p { color: var(--muted); font-size: 17px; line-height: 1.6; }
+    .section { margin: 0 0 16px; }
+    .section p { color: var(--muted); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card {
+      display: flex;
+      flex-direction: column;
+      min-height: 282px;
+      padding: 23px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 8px 30px #40163808;
+    }
+    .icon {
+      display: grid;
+      width: 50px;
+      height: 50px;
+      place-items: center;
+      background: var(--accent-soft);
+      border-radius: 14px;
+      font-size: 25px;
+    }
+    .card:nth-child(2) .icon { background: #f7f0f5; }
+    .tag { margin-top: 20px; font-size: 10px; }
+    .card h2 { margin: 7px 0; font-size: 20px; }
+    .card p { margin: 0 0 20px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .launch {
+      display: flex;
+      justify-content: space-between;
+      margin-top: auto;
+      padding: 12px 15px;
+      background: var(--ink);
+      border-radius: 10px;
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .launch:hover { background: var(--accent-hover); }
+    footer { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero { padding: 48px 0 32px; }
+      .section { display: block; }
+      .card { min-height: 250px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">◈</span>
+        <span class="brand-xebia">Xebia</span>
+        <span class="brand-divider" aria-hidden="true">|</span>
+        <span class="brand-product">Analytics Hub</span>
+      </div>
+      <div class="local"><span class="dot">●</span>Local workspace</div>
+    </header>
+    <main>
+      <section class="hero">
+        <div class="eyebrow">YOUR ANALYTICS TOOLKIT</div>
+        <h1>Accelerators.<br>One starting point.</h1>
+        <p>Pick a tool to get started. Each accelerator opens in its own workspace, ready for its specific analytics task.</p>
+      </section>
+      <div class="section">
+        <h2>Available accelerators</h2>
+        <p>Select a workspace to launch</p>
+      </div>
+      <section class="grid">
+        <article class="card">
+          <div class="icon">📘</div>
+          <div class="tag">POWER BI · PLANNING</div>
+          <h2>Playbook Generator</h2>
+          <p>Turn business requirements or a BRD into a structured implementation playbook with model, KPI, and report proposals.</p>
+          <a class="launch" href="http://127.0.0.1:8001" target="_blank" rel="noopener">Open generator <span>↗</span></a>
+        </article>
+        <article class="card">
+          <div class="icon">🔁</div>
+          <div class="tag">TABLEAU → POWER BI</div>
+          <h2>Logic Convertor</h2>
+          <p>Translate Tableau calculated fields into DAX, one expression at a time or in bulk from Excel or CSV.</p>
+          <a class="launch" href="http://127.0.0.1:8002" target="_blank" rel="noopener">Open converter <span>↗</span></a>
+        </article>
+        <article class="card">
+          <div class="icon">📊</div>
+          <div class="tag">POWER BI · QUALITY</div>
+          <h2>Report Validator</h2>
+          <p>Compare source and destination PBIX or PBIP reports, inspect model differences, and optionally compare exported visuals.</p>
+          <a class="launch" href="http://127.0.0.1:8501" target="_blank" rel="noopener">Open validator <span>↗</span></a>
+        </article>
+      </section>
+    </main>
+    <footer>Xebia · Analytics Accelerator Hub · Local launcher</footer>
+  </div>
+</body>
+</html>
