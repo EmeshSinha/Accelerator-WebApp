@@ -95,7 +95,7 @@
         <span class="brand-divider" aria-hidden="true">|</span>
         <span class="brand-product">Analytics Hub</span>
       </div>
-      <div class="local"><span class="dot">●</span>Hosted workspace</div>
+      <div class="local"><span class="dot">●</span><span id="workspace-label">Hosted workspace</span></div>
     </header>
     <main>
       <section class="hero">
@@ -113,25 +113,40 @@
           <div class="tag">POWER BI · PLANNING</div>
           <h2>Playbook Generator</h2>
           <p>Turn business requirements or a BRD into a structured implementation playbook with model, KPI, and report proposals.</p>
-          <a class="launch" href="https://analytics-playbook-generator.onrender.com" target="_blank" rel="noopener">Open generator <span>↗</span></a>
+          <a class="launch" href="https://analytics-playbook-generator.onrender.com" data-local-url="http://127.0.0.1:8001" target="_blank" rel="noopener">Open generator <span>↗</span></a>
         </article>
         <article class="card">
           <div class="icon">🔁</div>
           <div class="tag">TABLEAU → POWER BI</div>
           <h2>Logic Convertor</h2>
           <p>Translate Tableau calculated fields into DAX, one expression at a time or in bulk from Excel or CSV.</p>
-          <a class="launch" href="https://analytics-tableau-converter.onrender.com" target="_blank" rel="noopener">Open converter <span>↗</span></a>
+          <a class="launch" href="https://analytics-tableau-converter.onrender.com" data-local-url="http://127.0.0.1:8002" target="_blank" rel="noopener">Open converter <span>↗</span></a>
         </article>
         <article class="card">
           <div class="icon">📊</div>
           <div class="tag">POWER BI · QUALITY</div>
           <h2>Report Validator</h2>
           <p>Compare source and destination PBIX or PBIP reports, inspect model differences, and optionally compare exported visuals.</p>
-          <a class="launch" href="https://analytics-powerbi-validator.onrender.com" target="_blank" rel="noopener">Open validator <span>↗</span></a>
+          <a class="launch" href="https://analytics-powerbi-validator.onrender.com" data-local-url="http://127.0.0.1:8501" target="_blank" rel="noopener">Open validator <span>↗</span></a>
+        </article>
+        <article class="card">
+          <div class="icon">🧾</div>
+          <div class="tag">POWER BI · METADATA</div>
+          <h2>Metadata Extractor</h2>
+          <p>Upload a PBIX or PBIT file and export available report and semantic-model metadata to Excel.</p>
+          <a class="launch" href="https://analytics-powerbi-metadata-extractor.onrender.com" target="_blank" rel="noopener">Open extractor <span>↗</span></a>
         </article>
       </section>
     </main>
     <footer>Xebia · Analytics Accelerator Hub</footer>
   </div>
+  <script>
+    if (["localhost", "127.0.0.1"].includes(window.location.hostname)) {
+      document.getElementById("workspace-label").textContent = "Local workspace";
+      document.querySelectorAll("[data-local-url]").forEach((link) => {
+        link.href = link.dataset.localUrl;
+      });
+    }
+  </script>
 </body>
 </html>

@@ -42,6 +42,18 @@ services:
         value: 3.11.11
 
   - type: web
+    name: analytics-powerbi-metadata-extractor
+    runtime: python
+    plan: free
+    region: singapore
+    rootDir: Power-BI-Metadata-Extractor--main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+
+  - type: web
     name: analytics-accelerator-hub
     runtime: static
     buildCommand: echo "Publishing Analytics Accelerator Hub"

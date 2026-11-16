@@ -1,6 +1,6 @@
 # Analytics Accelerator Hub
 
-Start all three local analytics tools from one dashboard. The source projects are included in this folder.
+Start the three local analytics tools from one dashboard. The Power BI Metadata Extractor is also available as a hosted accelerator on Render.
 
 ## Start
 
@@ -17,11 +17,13 @@ For the Playbook Generator's AI features, copy `Power-BI-Playbook-Generator--mai
 
 ## Deploy to Render
 
-The root `render.yaml` defines the three Python web services and the static dashboard. To deploy:
+The root `render.yaml` defines the four Python web services and the static dashboard. To deploy:
 
 1. Push the repository to GitHub.
 2. In Render, choose **New → Blueprint**, connect this repository, and deploy the Blueprint from the repository root.
 3. Set the prompted `GEMINI_API_KEY` values for the Playbook Generator and Tableau converter. Do not commit API keys.
 4. Open the dashboard URL for `analytics-accelerator-hub` and test each accelerator link.
 
-The dashboard links use the service names in `render.yaml` to form their default `onrender.com` URLs. If Render assigns a different URL, update the corresponding link in `index.html` and push the change. The free web services may sleep when idle; PBIX/PBIP validation can also need more memory than a free instance provides.
+The dashboard links use the service names in `render.yaml` to form their default `onrender.com` URLs. If Render assigns a different URL, update the corresponding link in `index.html` and push the change. The free web services may sleep when idle; PBIX/PBIP processing can also need more memory than a free instance provides.
+
+The Metadata Extractor is a public demo endpoint without sign-in. Uploaded reports are sent to the Render service for processing. Use only non-confidential files that you are authorized to upload; do not use client or production reports. Its upload limit is 200 MB, which may exceed the memory available on a free instance.

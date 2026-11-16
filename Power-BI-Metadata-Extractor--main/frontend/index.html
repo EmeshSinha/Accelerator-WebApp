@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#fffdf8">
+  <title>Power BI Metadata Extractor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Power BI Metadata Extractor home">
+      <span class="brand-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="21" width="7" height="14" rx="2" fill="#f5bd36"/><rect x="16" y="13" width="7" height="22" rx="2" fill="#f39a36"/><rect x="27" y="5" width="7" height="30" rx="2" fill="#e66b35"/><path d="M3 36h34" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <span>Power BI <b>Metadata</b></span>
+    </a>
+    <div class="topbar-right"><span class="status-dot"></span><span>Your report is processed by this server</span></div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow"><span class="eyebrow-line"></span> REPORT INTELLIGENCE</div>
+      <h1>Get to know your<br><span>Power BI report.</span></h1>
+      <p class="hero-copy">Turn a Power BI report into a clear, structured metadata workbook. Inspect pages, visuals, DAX, tables, relationships and Power Query without digging through every pane manually.</p>
+      <div class="hero-points">
+        <span><span class="check">✓</span> No AI API required</span>
+        <span><span class="check">✓</span> Excel output</span>
+        <span><span class="check">✓</span> PBIX and PBIT</span>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="upload-card">
+        <div class="section-heading">
+          <div><p class="step-label">STEP 01</p><h2>Upload your report</h2></div>
+          <span class="file-chip">.PBIX / .PBIT</span>
+        </div>
+        <label class="drop-zone" id="dropZone" for="fileInput">
+          <input id="fileInput" type="file" accept=".pbix,.pbit">
+          <span class="upload-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 31V8m0 0-8 8m8-8 8 8M10 29v9a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <strong id="dropTitle">Drop your Power BI file here</strong>
+          <span class="drop-subtitle" id="dropSubtitle">or <span class="browse-link">browse files</span> on your computer</span>
+          <span class="file-limit">Maximum file size: 200 MB</span>
+        </label>
+        <div class="selected-file hidden" id="selectedFile">
+          <span class="file-icon">BI</span>
+          <div class="file-info"><strong id="fileName"></strong><span id="fileSize"></span></div>
+          <button type="button" class="remove-file" id="removeFile" aria-label="Remove selected file">×</button>
+        </div>
+        <button class="primary-button" id="extractButton" disabled>
+          <span id="buttonText">Extract metadata</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <p class="privacy-note"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2 4 4.5v4.7c0 4 2.5 6.6 6 8.3 3.5-1.7 6-4.3 6-8.3V4.5L10 2Z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m7.5 9.7 1.7 1.7 3.5-3.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Metadata is processed by the local Python backend. Credential-like properties are redacted from connection metadata where detected.</p>
+        <div class="message hidden" id="message" role="status"></div>
+      </div>
+
+      <aside class="info-column">
+        <div class="included-card">
+          <p class="step-label">WHAT YOU’LL GET</p>
+          <h3>Your report, mapped out.</h3>
+          <p class="aside-copy">The Excel output separates report structure from semantic-model details, making it easier to review and document.</p>
+          <ul class="feature-list">
+            <li><span class="feature-icon coral">▦</span><span><b>Pages and visuals</b><small>Page inventory, visual types and layout</small></span></li>
+            <li><span class="feature-icon yellow">DAX</span><span><b>Model logic</b><small>Measures, calculated columns and tables</small></span></li>
+            <li><span class="feature-icon mint">⌘</span><span><b>Data model</b><small>Tables, columns and relationships</small></span></li>
+            <li><span class="feature-icon lilac">M</span><span><b>Queries and security</b><small>Power Query, parameters, RLS and OLS</small></span></li>
+          </ul>
+        </div>
+        <div class="tip-card">
+          <span class="tip-bulb">✳</span>
+          <div><b>One thing to know</b><p>Thin reports and live connections may not include the semantic model in the file. The warnings tab will help explain what was unavailable.</p></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="bottom-strip">
+      <div><span class="bottom-number">01</span><span><b>Upload</b><small>Choose a PBIX or PBIT file</small></span></div>
+      <span class="strip-arrow">→</span>
+      <div><span class="bottom-number">02</span><span><b>Inspect</b><small>Read report and model metadata</small></span></div>
+      <span class="strip-arrow">→</span>
+      <div><span class="bottom-number">03</span><span><b>Export</b><small>Download an Excel workbook</small></span></div>
+    </section>
+  </main>
+  <footer><span>Power BI Metadata Extractor</span><span>Built for practical report analysis</span></footer>
+  <script src="/app.js"></script>
+</body>
+</html>
