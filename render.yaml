@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: analytics-playbook-generator
+    runtime: python
+    plan: free
+    region: singapore
+    rootDir: Power-BI-Playbook-Generator--main
+    buildCommand: pip install -r requirements.txt
+    startCommand: cd backend && waitress-serve --host=0.0.0.0 --port=$PORT app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+
+  - type: web
+    name: analytics-tableau-converter
+    runtime: python
+    plan: free
+    region: singapore
+    rootDir: Tableau_to_DAX_Convertor-main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: GEMINI_API_KEY
+        sync: false
+
+  - type: web
+    name: analytics-powerbi-validator
+    runtime: python
+    plan: free
+    region: singapore
+    rootDir: powerBI_report_validation-main
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app_powerbi.py --server.address 0.0.0.0 --server.port $PORT --server.headless true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+
+  - type: web
+    name: analytics-accelerator-hub
+    runtime: static
+    buildCommand: echo "Publishing Analytics Accelerator Hub"
+    staticPublishPath: .
