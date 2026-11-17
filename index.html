@@ -30,10 +30,9 @@
       padding: 26px 36px 40px;
     }
     .top, .section { display: flex; justify-content: space-between; align-items: center; }
-    .brand { display: flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 800; }
-    .brand-mark { color: var(--ink); }
-    .brand-xebia { color: var(--accent); }
-    .brand-divider { color: #aab6c3; font-weight: 400; }
+    .brand { display: flex; align-items: center; gap: 16px; font-size: 19px; font-weight: 800; }
+    .brand-logo { display: block; width: 126px; height: auto; }
+    .brand-divider { color: #d7c3d3; font-size: 24px; font-weight: 400; }
     .brand-product { color: var(--ink); }
     .local { color: var(--muted); font-size: 12px; }
     .dot { color: var(--accent); font-size: 18px; margin-right: 6px; }
@@ -113,9 +112,8 @@
   <div class="shell">
     <header class="top">
       <div class="brand">
-        <span class="brand-mark" aria-hidden="true">◈</span>
-        <span class="brand-xebia">Xebia</span>
-        <span class="brand-divider" aria-hidden="true">|</span>
+        <img class="brand-logo" src="Power-BI-Playbook-Generator--main/frontend/assets/xebia_logo.png" alt="Xebia">
+        <span class="brand-divider" aria-hidden="true">/</span>
         <span class="brand-product">Analytics Hub</span>
       </div>
       <div class="local"><span class="dot">●</span><span id="workspace-label">Hosted workspace</span></div>
