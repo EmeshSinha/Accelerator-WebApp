@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffdf9">
+  <link rel="icon" href="data:,">
+  <title>Xebia | Semantic Model Compatibility Checker</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Xebia Semantic Model Compatibility Checker">
+        <img class="brand-logo" src="/xebia-logo.svg" alt="Xebia">
+        <span class="brand-divider" aria-hidden="true">/</span>
+        <span class="brand-product"><strong>Semantic Model</strong><small>COMPATIBILITY CHECKER</small></span>
+      </a>
+      <div class="server-status" id="serverStatus" role="status" aria-live="polite">
+        <span class="status-dot"></span>
+        <span id="serverStatusText">Checking local server…</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero">
+      <p class="eyebrow"><span></span> REPORT COMPATIBILITY</p>
+      <h1>Move reports<br><em>with confidence.</em></h1>
+      <p class="hero-copy">See whether a Power BI report can move to a new semantic model. Find missing fields before they break your visuals.</p>
+      <div class="trust-points" aria-label="How your files are handled">
+        <span><b aria-hidden="true">✓</b> No API key</span>
+        <span><b aria-hidden="true">✓</b> Processed on server</span>
+        <span><b aria-hidden="true">✓</b> Excel results</span>
+      </div>
+    </section>
+
+    <section class="workspace-grid" aria-label="Compatibility check setup">
+      <form id="form" class="upload-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="step-label">STEP 01 <span>·</span> UPLOAD FILES</p>
+            <h2>What are we comparing?</h2>
+          </div>
+          <span class="file-limit">200 MB max each</span>
+        </div>
+        <p class="panel-intro">Choose the report you want to reuse and the semantic model it should work with.</p>
+
+        <div class="file-grid">
+          <label class="drop-card" id="dropReport" for="report">
+            <input type="file" id="report" accept=".pbix,.pbit,.xlsx,.docx" required>
+            <span class="drop-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 15V3m0 0L7.5 7.5M12 3l4.5 4.5M5 14v5a2 2 0 002 2h10a2 2 0 002-2v-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="drop-title">Your report</span>
+            <span class="drop-hint">Power BI report or a structured field list</span>
+            <span class="file-types"><span>XLSX</span><span>DOCX</span></span>
+            <span class="drop-action">Browse files <span aria-hidden="true">↗</span></span>
+            <span class="drop-file" id="nameReport">or drag a file here</span>
+          </label>
+
+          <div class="compare-mark" aria-hidden="true"><span>VS</span></div>
+
+          <label class="drop-card" id="dropModel" for="model">
+            <input type="file" id="model" accept=".pbix,.pbit" required>
+            <span class="drop-icon model-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="8" ry="3" stroke="currentColor" stroke-width="1.7"/><path d="M4 5v7c0 1.65 3.58 3 8 3 1.1 0 2.15-.1 3.1-.27M20 5v8M4 12v7c0 1.66 3.58 3 8 3 .87 0 1.7-.06 2.48-.18M20 13a3 3 0 100 6 3 3 0 000-6zm0 1.5v3m-1.5-1.5h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </span>
+            <span class="drop-title">Target semantic model</span>
+            <span class="drop-hint">The model the report should connect to</span>
+            <span class="file-types"><span>PBIX</span><span>PBIT</span></span>
+            <span class="drop-action">Browse files <span aria-hidden="true">↗</span></span>
+            <span class="drop-file" id="nameModel">or drag a file here</span>
+          </label>
+        </div>
+
+        <p class="format-note"><span aria-hidden="true">i</span> Excel/Word lists need <strong>Table</strong>, <strong>Field</strong>, and <strong>Kind</strong> columns. Kind: Column, Measure, or Hierarchy.</p>
+        <button type="submit" id="go" class="primary-button" disabled>
+          <span>Check compatibility</span><span aria-hidden="true">→</span>
+        </button>
+        <p id="error" class="error" role="alert" hidden></p>
+        <p class="privacy-note"><span aria-hidden="true">✓</span> Files are processed by this server, not sent to an AI service. Do not upload confidential reports to this public demo.</p>
+      </form>
+
+      <aside class="overview-column">
+        <section class="info-panel">
+          <p class="step-label">WHAT YOU’LL GET</p>
+          <h2>A clear picture of compatibility.</h2>
+          <p class="panel-intro">Review the important differences in your report and semantic model, all in one place.</p>
+          <ul class="feature-list">
+            <li><span class="feature-icon peach" aria-hidden="true">▦</span><span><strong>Missing fields</strong><small>Spot columns, measures, or tables that changed</small></span></li>
+            <li><span class="feature-icon yellow" aria-hidden="true">✓</span><span><strong>Visual impact</strong><small>See which report visuals may need attention</small></span></li>
+            <li><span class="feature-icon mint" aria-hidden="true">↓</span><span><strong>Shareable results</strong><small>Download a detailed Excel workbook</small></span></li>
+          </ul>
+        </section>
+        <section class="tip-panel">
+          <span class="tip-icon" aria-hidden="true">✳</span>
+          <div><strong>One thing to know</strong><p>A report file shows which fields it uses; the target model file shows which fields are available.</p></div>
+        </section>
+      </aside>
+    </section>
+
+    <section id="result" class="result-area" hidden aria-live="polite">
+      <div class="result-heading">
+        <div>
+          <p class="step-label">COMPATIBILITY RESULTS</p>
+          <h2>Your comparison, mapped out.</h2>
+        </div>
+        <button id="download" type="button" class="download-button"><span aria-hidden="true">↓</span> Download Excel report</button>
+      </div>
+      <div id="verdict" class="verdict"></div>
+      <dl id="stats" class="stats"></dl>
+      <p id="meta" class="result-meta"></p>
+      <div class="result-tabs" role="tablist" aria-label="Comparison details">
+        <button type="button" class="result-tab active" role="tab" aria-selected="true" aria-controls="panel-problems" data-tab-target="problems">Fields that need attention <span id="problemCount">0</span></button>
+        <button type="button" class="result-tab" role="tab" aria-selected="false" aria-controls="panel-visuals" data-tab-target="visuals">Visual impact <span id="visualCount">0</span></button>
+        <button type="button" class="result-tab" role="tab" aria-selected="false" aria-controls="panel-warnings" data-tab-target="warnings">Warnings <span id="warningCount">0</span></button>
+      </div>
+      <section id="panel-problems" class="table-panel" role="tabpanel">
+        <h3>Fields that will break</h3>
+        <div class="scroll"><table id="problems"></table></div>
+      </section>
+      <section id="panel-visuals" class="table-panel" role="tabpanel" hidden>
+        <h3>Visuals affected</h3>
+        <div class="scroll"><table id="visuals"></table></div>
+      </section>
+      <section id="panel-warnings" class="table-panel" role="tabpanel" hidden>
+        <h3>Warnings</h3>
+        <div class="scroll"><table id="warnings"></table></div>
+      </section>
+    </section>
+
+    <section class="process-strip" aria-label="How it works">
+      <div><span>01</span><p><strong>Upload</strong><small>Choose the report and model</small></p></div>
+      <i aria-hidden="true">→</i>
+      <div><span>02</span><p><strong>Compare</strong><small>Check every referenced field</small></p></div>
+      <i aria-hidden="true">→</i>
+      <div><span>03</span><p><strong>Review</strong><small>Explore issues and export results</small></p></div>
+    </section>
+  </main>
+  <footer class="site-footer"><span>Xebia · Semantic model compatibility checker</span><span>Built for practical report migrations</span></footer>
+  <script src="/app.js"></script>
+</body>
+</html>

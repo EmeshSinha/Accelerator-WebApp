@@ -8,6 +8,7 @@ APPS = [
     ("validator", ROOT / "powerBI_report_validation-main", [sys.executable, "-m", "streamlit", "run", "app_powerbi.py", "--server.address", "127.0.0.1", "--server.port", "8501", "--server.headless", "true"]),
     ("playbook", ROOT / "Power-BI-Playbook-Generator--main" / "backend", [sys.executable, "-c", "from waitress import serve; from app import app; serve(app, host='127.0.0.1', port=8001)"]),
     ("converter", ROOT / "Tableau_to_DAX_Convertor-main", [sys.executable, "-m", "uvicorn", "backend.main:app", "--host", "127.0.0.1", "--port", "8002"]),
+    ("compatibility", ROOT / "powerBI_semantic_compatibility_checker-main", [sys.executable, "-m", "uvicorn", "backend.main:app", "--host", "127.0.0.1", "--port", "8003"]),
 ]
 logs = ROOT / "logs"
 logs.mkdir(exist_ok=True)

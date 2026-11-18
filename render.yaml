@@ -54,6 +54,18 @@ services:
         value: 3.12.11
 
   - type: web
+    name: analytics-powerbi-compatibility-checker
+    runtime: python
+    plan: free
+    region: singapore
+    rootDir: powerBI_semantic_compatibility_checker-main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.11
+
+  - type: web
     name: analytics-accelerator-hub
     runtime: static
     buildCommand: echo "Publishing Analytics Accelerator Hub"
